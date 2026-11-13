@@ -143,7 +143,8 @@ async function handleGetRegions() {
 async function handleApiRequest(url) {
     const regions = url.searchParams.get('region')?.split(',') || [];
     const format = url.searchParams.get('format') || 'line';
-    return handleRawRequest(regions.join(','), format, 0, url.toString());
+    const limit = parseInt(url.searchParams.get('limit')) || 0;
+    return handleRawRequest(regions.join(','), format, limit, url.toString());
 }
 
 async function handleRawRequest(regionStr, format, limit = 0, requestUrl = null) {
@@ -505,7 +506,10 @@ class="group h-12 flex items-center rounded-2xl bg-white dark:bg-slate-800 borde
         async function fetchIps() {
             if(selected.length === 0) { showToast('请至少选择一个地区！', 'error'); return; }
             try {
-                const res = await fetch(\`?api=1&region=\${selected.join(',')}&format=\${fmt}\`);
+                const limitVal = document.getElementById('limitInput').value;
+                const limit = parseInt(limitVal) || 0;
+                const limitParam = limit > 0 ? \`&limit=\${limit}\` : '';
+                const res = await fetch(\`?api=1&region=\${selected.join(',')}&format=\${fmt}\${limitParam}\`);
                 const data = await res.text();
                 document.getElementById('out').value = data;
                 const isComma = fmt.includes('comma') || fmt === 'comma';
